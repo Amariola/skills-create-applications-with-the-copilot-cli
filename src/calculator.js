@@ -1,20 +1,115 @@
 #!/usr/bin/env node
 /*
-  Node.js CLI Calculator
+  Node.js CLI Calculator (basic four operations only)
 
-  Supported operations:
-  - addition (add)
-  - subtraction (sub)
-  - multiplication (mul)
-  - division (div)
+  Supported operations (as requested, based only on the image):
+  - addition       (add or +)
+  - subtraction    (sub or -)
+  - multiplication (mul, x, × or *)
+  - division       (div or ÷ or /)
 
-  Usage examples:
+  This file provides a small programmatic API and a CLI wrapper.
+  The CLI prints the numeric result to stdout and exits with code 1 on error.
+
+  Examples:
     node src/calculator.js add 2 3
-    node src/calculator.js mul 4 5
-    node src/calculator.js div 10 2
-
-  The script prints the numeric result to stdout and uses exit code 1 on error.
+    node src/calculator.js 2 + 3
+    node src/calculator.js 10 ÷ 2
 */
+
+'use strict';
+
+function usage() {
+  console.error(`Usage:
+  calculator.js <a> <operator> <b>
+  calculator.js <operation> <a> <b>
+
+Operators / operations supported:
+  +, add      - addition
+  -, sub      - subtraction
+  ×, *, mul   - multiplication
+  ÷, /, div   - division
+
+Examples:
+  calculator.js 2 + 3
+  calculator.js add 4 5
+`);
+}
+
+function toNumber(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) throw new TypeError(`Invalid number: ${v}`);
+  return n;
+}
+
+// Basic arithmetic operations
+function add(a, b) { return toNumber(a) + toNumber(b); }
+function sub(a, b) { return toNumber(a) - toNumber(b); }
+function mul(a, b) { return toNumber(a) * toNumber(b); }
+function div(a, b) {
+  const denom = toNumber(b);
+  if (denom === 0) throw new RangeError('Division by zero');
+  return toNumber(a) / denom;
+}
+
+// Normalize operator tokens to canonical forms used by calculate()
+function normalizeOperator(op) {
+  if (typeof op !== 'string') return op;
+  const s = op.trim().toLowerCase();
+  if (s === 'add' || s === '+') return '+';
+  if (s === 'sub' || s === '-') return '-';
+  if (s === 'mul' || s === 'x' || s === '×' || s === '*') return '*';
+  if (s === 'div' || s === '÷' || s === '/') return '/';
+  return op;
+}
+
+function calculate(op, a, b) {
+  const operator = normalizeOperator(op);
+  switch (operator) {
+    case '+': return add(a, b);
+    case '-': return sub(a, b);
+    case '*': return mul(a, b);
+    case '/': return div(a, b);
+    default: throw new Error(`Unsupported operator: ${op}`);
+  }
+}
+
+// CLI entrypoint
+if (require.main === module) {
+  const args = process.argv.slice(2);
+  if (args.length === 0 || args.includes('-h') || args.includes('--help')) {
+    usage();
+    process.exit(args.length === 0 ? 1 : 0);
+  }
+
+  // Support: "a op b" or "op a b"
+  let a, b, op;
+  if (args.length === 3) {
+    const maybeNum = Number(args[0]);
+    if (!Number.isNaN(maybeNum)) {
+      a = args[0]; op = args[1]; b = args[2];
+    } else {
+      op = args[0]; a = args[1]; b = args[2];
+    }
+  } else {
+    console.error('Error: expected three arguments (operation and two operands).');
+    usage();
+    process.exit(1);
+  }
+
+  try {
+    const result = calculate(op, a, b);
+    console.log(result);
+    process.exit(0);
+  } catch (err) {
+    console.error('Error:', err.message);
+    process.exit(1);
+  }
+}
+
+// Export for programmatic use / testing
+module.exports = { add, sub, mul, div, calculate };
+
 
 'use strict';
 
