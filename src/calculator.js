@@ -19,16 +19,25 @@
 'use strict';
 
 function usage() {
-  console.error(`Usage: calculator.js <operation> <a> <b>\n
+  console.error(`Usage:
+  calculator.js <operation> <a> <b>
+  calculator.js sqrt <a>
+
 Operations:
   add   - addition
   sub   - subtraction
   mul   - multiplication
   div   - division
+  mod   - modulo (remainder)
+  pow   - exponentiation (a ^ b)
+  sqrt  - square root (unary)
 
 Examples:
   calculator.js add 2 3
-  calculator.js div 10 2`);
+  calculator.js div 10 2
+  calculator.js mod 10 3
+  calculator.js pow 2 8
+  calculator.js sqrt 16`);
 }
 
 function parseNumber(s) {
@@ -50,6 +59,27 @@ if (require.main === module) {
     process.exit(cmd ? 0 : 1);
   }
 
+  const op = (cmd || '').toLowerCase();
+
+  // Unary operations set (supports 'sqrt' and 'squareroot')
+  const unaryOps = new Set(['sqrt', 'squareroot']);
+
+  if (unaryOps.has(op)) {
+    const a = parseNumber(aRaw);
+    if (Number.isNaN(a)) {
+      console.error('Error: operand must be a valid number for ' + op + '.');
+      usage();
+      process.exit(1);
+    }
+    if (a < 0) {
+      console.error('Error: square root of negative number');
+      process.exit(1);
+    }
+    console.log(squareRoot(a));
+    process.exit(0);
+  }
+
+  // Binary operations
   const a = parseNumber(aRaw);
   const b = parseNumber(bRaw);
 
@@ -60,7 +90,7 @@ if (require.main === module) {
   }
 
   let result;
-  switch (cmd.toLowerCase()) {
+  switch (op) {
     case 'add':
       result = add(a, b);
       break;
@@ -77,6 +107,18 @@ if (require.main === module) {
       }
       result = div(a, b);
       break;
+    case 'mod':
+    case 'modulo':
+      if (b === 0) {
+        console.error('Error: modulo by zero');
+        process.exit(1);
+      }
+      result = mod(a, b);
+      break;
+    case 'pow':
+    case 'power':
+      result = pow(a, b);
+      break;
     default:
       console.error(`Unknown operation: ${cmd}`);
       usage();
@@ -88,4 +130,26 @@ if (require.main === module) {
 }
 
 // Export functions for testing or programmatic use
-module.exports = { add, sub, mul, div };
+
+// Modulo: remainder of a divided by b
+function modulo(a, b) {
+  return a % b;
+}
+function mod(a, b) { return modulo(a, b); }
+
+// Power: base raised to exponent
+function power(base, exponent) {
+  return Math.pow(base, exponent);
+}
+function pow(a, b) { return power(a, b); }
+
+// Square root with error handling for negative inputs
+function squareRoot(n) {
+  if (n < 0) {
+    throw new Error('square root of negative number');
+  }
+  return Math.sqrt(n);
+}
+function sqrt(a) { return squareRoot(a); }
+
+module.exports = { add, sub, mul, div, mod, pow, sqrt, modulo, power, squareRoot };
