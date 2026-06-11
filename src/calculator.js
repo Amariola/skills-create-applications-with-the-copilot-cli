@@ -18,8 +18,6 @@
 
 'use strict';
 
-const [,, cmd, aRaw, bRaw] = process.argv;
-
 function usage() {
   console.error(`Usage: calculator.js <operation> <a> <b>\n
 Operations:
@@ -43,46 +41,51 @@ function sub(a, b) { return a - b; }
 function mul(a, b) { return a * b; }
 function div(a, b) { return a / b; }
 
-if (!cmd || cmd === '--help' || cmd === '-h') {
-  usage();
-  process.exit(cmd ? 0 : 1);
-}
+// CLI entry point only when executed directly
+if (require.main === module) {
+  const [,, cmd, aRaw, bRaw] = process.argv;
 
-const a = parseNumber(aRaw);
-const b = parseNumber(bRaw);
+  if (!cmd || cmd === '--help' || cmd === '-h') {
+    usage();
+    process.exit(cmd ? 0 : 1);
+  }
 
-if (Number.isNaN(a) || Number.isNaN(b)) {
-  console.error('Error: both operands must be valid numbers.');
-  usage();
-  process.exit(1);
-}
+  const a = parseNumber(aRaw);
+  const b = parseNumber(bRaw);
 
-let result;
-switch (cmd.toLowerCase()) {
-  case 'add':
-    result = add(a, b);
-    break;
-  case 'sub':
-    result = sub(a, b);
-    break;
-  case 'mul':
-    result = mul(a, b);
-    break;
-  case 'div':
-    if (b === 0) {
-      console.error('Error: division by zero');
-      process.exit(1);
-    }
-    result = div(a, b);
-    break;
-  default:
-    console.error(`Unknown operation: ${cmd}`);
+  if (Number.isNaN(a) || Number.isNaN(b)) {
+    console.error('Error: both operands must be valid numbers.');
     usage();
     process.exit(1);
-}
+  }
 
-// Print the result to stdout
-console.log(result);
+  let result;
+  switch (cmd.toLowerCase()) {
+    case 'add':
+      result = add(a, b);
+      break;
+    case 'sub':
+      result = sub(a, b);
+      break;
+    case 'mul':
+      result = mul(a, b);
+      break;
+    case 'div':
+      if (b === 0) {
+        console.error('Error: division by zero');
+        process.exit(1);
+      }
+      result = div(a, b);
+      break;
+    default:
+      console.error(`Unknown operation: ${cmd}`);
+      usage();
+      process.exit(1);
+  }
+
+  // Print the result to stdout
+  console.log(result);
+}
 
 // Export functions for testing or programmatic use
 module.exports = { add, sub, mul, div };
