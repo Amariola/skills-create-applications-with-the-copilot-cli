@@ -10,8 +10,14 @@ describe('Calculator module - basic operations (image examples)', () => {
 
 describe('Calculator module - additional ops and edge cases', () => {
   test('modulo: 10 % 3 => 1', () => expect(c.mod(10, 3)).toBe(1));
+  test('modulo example from image: 5 % 2 => 1', () => expect(c.mod(5, 2)).toBe(1));
+  test('modulo alias function: modulo(5,2) => 1', () => expect(c.modulo(5,2)).toBe(1));
+
   test('pow: 2 ** 8 => 256', () => expect(c.pow(2, 8)).toBe(256));
+  test('power example from image: 2 ^ 3 => 8', () => expect(c.power(2, 3)).toBe(8));
+
   test('sqrt: sqrt(16) => 4', () => expect(c.sqrt(16)).toBe(4));
+  test('squareRoot alias: squareRoot(16) => 4', () => expect(c.squareRoot(16)).toBe(4));
 
   test('division by zero throws RangeError', () => {
     expect(() => c.div(1, 0)).toThrow(/division by zero/i);
@@ -66,5 +72,23 @@ describe('CLI integration (src/cli.js)', () => {
     const r = spawnSync('node', ['src/cli.js', 'sqrt', '-9'], { encoding: 'utf8' });
     expect(r.status).toBe(1);
     expect((r.stderr || r.stdout)).toMatch(/square root of negative number|negative/gi);
+  });
+
+  test('CLI: modulo 5 % 2 -> 1', () => {
+    const r = spawnSync('node', ['src/cli.js', 'mod', '5', '2'], { encoding: 'utf8' });
+    expect(r.status).toBe(0);
+    expect(r.stdout.trim()).toBe('1');
+  });
+
+  test('CLI: power 2 ^ 3 -> 8', () => {
+    const r = spawnSync('node', ['src/cli.js', 'pow', '2', '3'], { encoding: 'utf8' });
+    expect(r.status).toBe(0);
+    expect(r.stdout.trim()).toBe('8');
+  });
+
+  test('CLI: sqrt 16 -> 4', () => {
+    const r = spawnSync('node', ['src/cli.js', 'sqrt', '16'], { encoding: 'utf8' });
+    expect(r.status).toBe(0);
+    expect(r.stdout.trim()).toBe('4');
   });
 });
