@@ -1,4 +1,4 @@
-const { add, sub, mul, div, mod, pow, sqrt } = require('../calculator');
+const { add, sub, mul, div, mod, pow, sqrt, squareRoot } = require('../calculator');
 const { spawnSync } = require('child_process');
 
 describe('calculator functions', () => {
@@ -22,12 +22,24 @@ describe('calculator functions', () => {
     expect(mod(10, 3)).toBe(1);
   });
 
+  test('modulo example from image: 5 % 2 = 1', () => {
+    expect(mod(5, 2)).toBe(1);
+  });
+
   test('exponentiation: 2 ^ 8 = 256', () => {
     expect(pow(2, 8)).toBe(256);
   });
 
+  test('exponentiation example from image: 2 ^ 3 = 8', () => {
+    expect(pow(2, 3)).toBe(8);
+  });
+
   test('square root: sqrt(16) = 4', () => {
     expect(sqrt(16)).toBe(4);
+  });
+
+  test('square root example from image: sqrt(16) = 4', () => {
+    expect(squareRoot(16)).toBe(4);
   });
 
   test('division by zero (function): returns Infinity', () => {
